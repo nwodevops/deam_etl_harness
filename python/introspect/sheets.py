@@ -5,9 +5,26 @@ Si la fuente declara `catalog` (F1 ODs), el DDL sale del JSON (sin llamar a la A
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 
 from .h2_ddl import Column, map_h2_type, sanitize_ident
+
+
+def con_backoff(fn, *args, intentos: int = 5, **kwargs):
+    """Ejecuta una llamada a la API de Sheets con reintentos ante cuota (429)."""
+    from gspread.exceptions import APIError
+
+    for i in range(intentos):
+        try:
+            return fn(*args, **kwargs)
+        except APIError as exc:
+            if "429" not in str(exc) or i == intentos - 1:
+                raise
+            espera = 45 * (2**i)
+            print(f"  cuota Sheets (429); espero {espera}s (intento {i + 1}/{intentos})")
+            time.sleep(espera)
+    raise RuntimeError("inaccesible")
 
 
 def _columns_from_names(names: list[str]) -> list[Column]:
@@ -81,7 +98,7 @@ def introspect(source: dict, variables: dict[str, str], root: Path | None = None
     gc = gspread.service_account(filename=str(secret))
     book = gc.open_by_key(key)
     sheet = book.worksheet(str(worksheet))
-    headers = sheet.row_values(header_row)
+    headers = con_backoff(sheet.row_values, header_row)
     if not headers:
         raise ValueError(f"Sheets '{worksheet}': fila {header_row} vacía")
 

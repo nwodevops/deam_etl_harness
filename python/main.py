@@ -70,16 +70,28 @@ def main() -> int:
         if _es_salida(nombre) and isinstance(val, pd.DataFrame):
             salidas[nombre] = val
 
-    if SALIDA_DF not in salidas:
-        raise SystemExit(f"La lógica no dejó '{SALIDA_DF}'. Ver python/CONTRATO.md")
+    salidas_oracle: dict[str, pd.DataFrame] = ns.get("SALIDAS_ORACLE") or {}
+    salidas_oracle = {
+        k: v for k, v in salidas_oracle.items() if isinstance(v, pd.DataFrame)
+    }
+
+    if SALIDA_DF not in salidas and not salidas_oracle:
+        raise SystemExit(
+            f"La lógica no dejó '{SALIDA_DF}' ni 'SALIDAS_ORACLE'. Ver python/CONTRATO.md"
+        )
 
     for nombre, df in salidas.items():
         print(f"Salida {nombre}: {len(df)} filas x {len(df.columns)} columnas")
 
-    escribir = _load("escribir_excel", HERE / "io" / "escribir_excel.py")
-    escribir.escribir_excel(salidas[SALIDA_DF], root)
+    if SALIDA_DF in salidas:
+        escribir = _load("escribir_excel", HERE / "io" / "escribir_excel.py")
+        escribir.escribir_excel(salidas[SALIDA_DF], root)
 
-    print("Listo (H2 -> logica -> Excel).")
+    if salidas_oracle:
+        escribir_ora = _load("escribir_oracle", HERE / "io" / "escribir_oracle.py")
+        escribir_ora.cargar(root, variables, salidas_oracle)
+
+    print("Listo (H2 -> logica -> destino).")
     return 0
 
 

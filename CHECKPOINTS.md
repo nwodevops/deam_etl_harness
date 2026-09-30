@@ -45,6 +45,18 @@ Contrato: [`python/CONTRATO.md`](python/CONTRATO.md).
 
 ---
 
+## Fase 4 — DEAM: Google Sheets → Oracle {#fase-4}
+
+- [x] Sheet `1hbepbbm...` compartido con `drive-sheets-monitor@gdrive-csep.iam.gserviceaccount.com` (Lector).
+- [x] 11 fuentes en `inputs.yaml` (`type: sheets`; tabs reales: General, Ubicación, Documentos, Componente ambiental, ISIM, EAS - EAF, IPASH, Participaciones, Ecosistemas frágiles, FLORA, FAUNA — quedan fuera Diccionario, DESPLEGABLE, Metas).
+- [x] `STG_DEAM_*` creadas en H2 y aterrizadas (extract Python fallback con backoff 429; pipelines Hop `pl_stage_*` pendientes de GUI).
+- [x] 11 tablas `DW_DEAM_*` creadas en Oracle `REPOCSEP` (VARCHAR2(4000) + `FECHA_CARGA` DATE).
+- [x] Carga truncate + full reload; conteos Oracle = filas Sheets por tab (verificado 2026-09-30).
+- [x] `main.py` acepta salida `SALIDAS_ORACLE` (contrato extendido en `python/CONTRATO.md`).
+- [ ] Opcional: extraer vía Hop (paso Google Sheets) en vez de Python fallback.
+
+---
+
 ## Fuera de alcance del cascarón
 
 - Modelo dimensional Oracle (`cargar_dw.py`) → copiar cuando el proyecto lo pida.

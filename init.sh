@@ -50,6 +50,9 @@ step "Reset H2 + DDL"
 step "Python create STG"
 "$PY" python/create_stg.py
 
+step "Python extract Sheets -> H2"
+"$PY" python/io/extraer_sheets.py
+
 step "Python main (demo)"
 set +e
 "$PY" python/main.py 2>&1 | tee "$LOG"
@@ -58,7 +61,7 @@ set -e
 [ "$MAIN_RC" -eq 0 ] || fail "python/main.py terminó con código $MAIN_RC"
 
 step "Comprobando salidas"
-grep -q "Salida RESULTADO" "$LOG" || fail "no hay Salida RESULTADO en el log"
+grep -Eq "Salida (RESULTADO|ORACLE)" "$LOG" || fail "no hay Salida RESULTADO/ORACLE en el log"
 grep -q "Excel:" "$LOG" || warn "no se escribió Excel (opcional si falla openpyxl)"
 if grep -q '\${[A-Za-z0-9_]\+}' "$LOG"; then
   fail "log contiene variables Hop sin resolver"

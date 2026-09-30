@@ -5,15 +5,12 @@
 | ID | *(elegir feature `pending` en feature_list.json)* |
 | Criterio | [`CHECKPOINTS.md`](../CHECKPOINTS.md) |
 
-## Plan
+## Última cerrada
 
-1. `./init.sh` → HARNESS OK
-2. Marcar **fase-1-entorno** `in_progress` → completar bootstrap → `done`
-3. Continuar fases 2–3 según CHECKPOINTS
+`fase-4-deam-sheets-oracle` — **done** 2026-09-30 (`progress/history.md`).
 
-## Comandos
+## Siguientes candidatos
 
-```bash
-./init.sh
-./switch-env.sh local
-```
+1. Extract vía Hop (paso Google Sheets) para reemplazar el fallback Python — requiere Hop GUI en remote-windows.
+2. Tipos reales por columna en `DW_DEAM_*` (hoy todo VARCHAR2(4000)).
+3. Decidir secretos: password real en `environments/remote.json` + `docs/credenciales/` sin gitignore.

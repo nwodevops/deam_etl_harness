@@ -1,6 +1,60 @@
-# Manifiesto de fuentes STG. Python (create_stg.py) crea DDL en H2; Hop extrae filas.
+# Manifiesto de fuentes STG. Python (create_stg.py) crea DDL en H2; el extract aterriza filas.
 #
-# Ejemplos: .agents/skills/hop-python-etl/inputs.example.yaml
-# Smoke del arquetipo: sources vacío (solo DEMO_TABLA_EJEMPLO en 01_schema.sql).
+# type sheets: extrae Google Sheets con client_secret.json (service account).
+# El sheet DEBE estar compartido con drive-sheets-monitor@gdrive-csep.iam.gserviceaccount.com.
 
-sources: []
+sources:
+  - stg_table: STG_DEAM_GENERAL
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "General"
+
+  - stg_table: STG_DEAM_UBICACION
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "Ubicación"
+
+  - stg_table: STG_DEAM_DOCUMENTOS
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "Documentos"
+
+  - stg_table: STG_DEAM_COMPONENTE_AMBIENTAL
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "Componente ambiental"
+
+  - stg_table: STG_DEAM_ISIM
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "ISIM"
+
+  - stg_table: STG_DEAM_EAS_EAF
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "EAS - EAF"
+
+  - stg_table: STG_DEAM_IPASH
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "IPASH"
+
+  - stg_table: STG_DEAM_PARTICIPANTES
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "Participaciones"
+
+  - stg_table: STG_DEAM_ECOSISTEMAS_FRAGILES
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "Ecosistemas frágiles"
+
+  - stg_table: STG_DEAM_FLORA
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "FLORA"
+
+  - stg_table: STG_DEAM_FAUNA
+    type: sheets
+    spreadsheet_key: 1hbepbbmTcUe80wCH3vjJiqKAVxpVliXF2jy2PCsqfx0
+    worksheet: "FAUNA"

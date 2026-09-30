@@ -26,6 +26,13 @@
       "status": "pending",
       "criterio": "CHECKPOINTS.md#fase-3",
       "doc": "python/CONTRATO.md"
+    },
+    {
+      "id": "fase-4-deam-sheets-oracle",
+      "title": "Google Sheets DEAM (11 tabs) → Oracle DW_DEAM_*",
+      "status": "done",
+      "criterio": "CHECKPOINTS.md#fase-4",
+      "doc": "progress/current.md"
     }
   ]
 }

@@ -2,7 +2,7 @@
 <workflow>
   <name>wf_main</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description>Corrida demo: Reset H2 → Python STG → pl_demo → Run Python</description>
+  <description>Corrida DEAM: Reset H2 → Python STG → extract Sheets → Run Python (Oracle)</description>
   <extended_description/>
   <created_user>-</created_user>
   <modified_user>-</modified_user>
@@ -44,12 +44,11 @@
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>set -e
-cd "${PROJECT_HOME}"
-./h2/scripts/reset_and_create.sh
+      <script>cd /d "${PROJECT_HOME}"
+call h2\scripts\reset_and_create.bat
 </script>
       <name>Reset H2 clean</name>
-      <description>stop + start H2 mem + DDL</description>
+      <description>stop + start H2 mem + DDL (Windows)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>208</xloc>
@@ -71,14 +70,11 @@ cd "${PROJECT_HOME}"
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>set -e
-cd "${PROJECT_HOME}"
-PY=python3
-[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
-"$PY" python/create_stg.py
+      <script>cd /d "${PROJECT_HOME}"
+".venv\Scripts\python.exe" python\create_stg.py
 </script>
       <name>Python create STG</name>
-      <description>inputs.yaml → CREATE TABLE STG_* (no-op si sources vacío)</description>
+      <description>inputs.yaml → CREATE TABLE STG_* (Windows)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>368</xloc>
@@ -87,27 +83,25 @@ PY=python3
       <attributes_hac/>
     </action>
     <action>
-      <filename>${PROJECT_HOME}/pipelines/pl_demo.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <create_parent_folder>N</create_parent_folder>
+      <filename/>
+      <work_directory>${PROJECT_HOME}</work_directory>
+      <arguments/>
+      <arg_from_previous>N</arg_from_previous>
       <set_logfile>N</set_logfile>
-      <set_append_logfile>N</set_append_logfile>
       <logfile/>
       <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
       <loglevel>Basic</loglevel>
-      <wait_until_finished>Y</wait_until_finished>
-      <parameters>
-        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>
-      <run_configuration>local</run_configuration>
-      <name>Pipeline demo</name>
-      <description>pl_demo.hpl — DEMO_TABLA_EJEMPLO</description>
-      <type>PIPELINE</type>
+      <exec_per_row>N</exec_per_row>
+      <set_append_logfile>N</set_append_logfile>
+      <insertScript>Y</insertScript>
+      <script>cd /d "${PROJECT_HOME}"
+".venv\Scripts\python.exe" python\io\extraer_sheets.py
+</script>
+      <name>Python extract Sheets</name>
+      <description>Google Sheets → STG_DEAM_* en H2 (gspread + backoff 429)</description>
+      <type>SHELL</type>
       <attributes/>
       <xloc>528</xloc>
       <yloc>192</yloc>
@@ -128,14 +122,11 @@ PY=python3
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>set -e
-cd "${PROJECT_HOME}"
-PY=python3
-[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
-"$PY" python/main.py
+      <script>cd /d "${PROJECT_HOME}"
+".venv\Scripts\python.exe" python\main.py
 </script>
       <name>Run Python</name>
-      <description>python/main.py → logica/demo.py → Excel</description>
+      <description>python/main.py → logica/deam.py → Oracle DW_DEAM_*</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>688</xloc>
@@ -171,13 +162,13 @@ PY=python3
     </hop>
     <hop>
       <from>Python create STG</from>
-      <to>Pipeline demo</to>
+      <to>Python extract Sheets</to>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Pipeline demo</from>
+      <from>Python extract Sheets</from>
       <to>Run Python</to>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -193,8 +184,8 @@ PY=python3
   </hops>
   <notepads>
     <notepad>
-      <note>Arquetipo mínimo: Reset → create STG → pl_demo → Run Python.
-Añadir pl_stage_* en Fase 2 (ver CHECKPOINTS.md#fase-2).</note>
+      <note>DEAM: Reset → create STG → extract Sheets (H2) → Run Python (Oracle DW_DEAM_*).
+Los campos de cada tabla se descubren de los headers del sheet en cada corrida.</note>
       <markdown>N</markdown>
       <notetype>GENERAL</notetype>
       <fontname>Segoe UI</fontname>

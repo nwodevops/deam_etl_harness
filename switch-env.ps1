@@ -18,7 +18,21 @@ if (-not (Test-Path -LiteralPath $envFile)) {
 }
 
 $envCfg = Get-Content -LiteralPath $envFile -Raw | ConvertFrom-Json
-$proj   = Get-Content -LiteralPath $projFile -Raw | ConvertFrom-Json
+
+if (-not (Test-Path -LiteralPath $projFile)) {
+    # Igual que switch-env.sh: crea el project-config base si no existe
+    $base = [ordered]@{
+        metadataBaseFolder       = '${PROJECT_HOME}/metadata'
+        unitTestsBasePath        = '${PROJECT_HOME}'
+        dataSetsCsvFolder        = '${PROJECT_HOME}/datasets'
+        enforcingExecutionInHome = $true
+        parentProjectName        = 'default'
+        config                   = [ordered]@{ variables = @() }
+    }
+    $base | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $projFile -Encoding UTF8
+}
+
+$proj = Get-Content -LiteralPath $projFile -Raw | ConvertFrom-Json
 
 $proj.config.variables = $envCfg.variables
 

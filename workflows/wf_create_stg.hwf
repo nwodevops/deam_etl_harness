@@ -47,9 +47,8 @@
       <add_date>N</add_date>
       <add_time>N</add_time>
       <insertScript>Y</insertScript>
-      <script>set -e
-cd "${PROJECT_HOME}"
-./h2/scripts/reset_and_create.sh
+      <script>cd /d "${PROJECT_HOME}"
+call h2\scripts\reset_and_create.bat
 </script>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>
@@ -73,11 +72,8 @@ cd "${PROJECT_HOME}"
       <add_date>N</add_date>
       <add_time>N</add_time>
       <insertScript>Y</insertScript>
-      <script>set -e
-cd "${PROJECT_HOME}"
-PY=python3
-[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
-"$PY" python/create_stg.py
+      <script>cd /d "${PROJECT_HOME}"
+".venv\Scripts\python.exe" python\create_stg.py
 </script>
       <loglevel>Basic</loglevel>
       <parallel>N</parallel>

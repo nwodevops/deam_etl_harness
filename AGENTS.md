@@ -26,7 +26,7 @@ ETL **Apache Hop + H2 in-memory + Python**. Arquitectura: [`docs/arquitectura.md
 ~/apps/hop/hop-gui.sh   # → wf_main.hwf
 ```
 
-**Windows:** `switch-env.ps1` hace lo mismo que `switch-env.sh` (`.\switch-env.ps1 local`). Los `.sh` (`init.sh`, `h2/scripts/`) requieren Git Bash/WSL y asumen venv Linux (`.venv/bin/python`; en Windows el venv es `.venv\Scripts\`).
+**Windows:** `switch-env.ps1` hace lo mismo que `switch-env.sh` (`.\switch-env.ps1 local`). `init.bat` es el equivalente de `init.sh` (usa `h2\scripts\*.bat` y `.venv\Scripts\python.exe`). Los `.sh` (`init.sh`, `h2/scripts/`) requieren Git Bash/WSL y asumen venv Linux (`.venv/bin/python`; en Windows el venv es `.venv\Scripts\`). Si la política de ejecución bloquea los `.ps1` (GPO, script sin firma), usa los `.bat` y genera `project-config.json` a mano (copiar variables de `environments/<env>.json`; estructura en `switch-env.sh`). Google Sheets vía service account tiene cuota (~60 lecturas/min): `introspect/sheets.py:con_backoff` reintenta ante 429 — reutilízala en llamadas nuevas a la API.
 
 Smoke sin Hop (equivalente a `init.sh`, sin chequeos del harness):
 
@@ -36,7 +36,7 @@ Smoke sin Hop (equivalente a `init.sh`, sin chequeos del harness):
 
 ## Reglas críticas
 
-1. **Un solo `.py`** en `logica/` (reemplazar `demo.py` al escribir la lógica real). `python/main.py` lo auto-descubre; entrada = DataFrames de `LECTURAS` en `python/io/leer_h2.py`; salida obligatoria = DataFrame `RESULTADO` (contrato: [`python/CONTRATO.md`](python/CONTRATO.md)).
+1. **Un solo `.py`** en `logica/` (reemplazar `demo.py` al escribir la lógica real). `python/main.py` lo auto-descubre; entrada = DataFrames de `LECTURAS` en `python/io/leer_h2.py`; salida = DataFrame `RESULTADO` (→ Excel) y/o dict `SALIDAS_ORACLE` {tabla → DataFrame} (→ Oracle `oracle_dw`, truncate + reload) (contrato: [`python/CONTRATO.md`](python/CONTRATO.md)).
 2. **Sin secretos** en git (`project-config.json` y `client_secret.json` son generados/gitignored; `environments/` solo placeholders `<...>`).
 3. **Sin `${VAR}` literal** en logs Hop = variable mal definida.
 4. `logica/` no abre conexiones. I/O en `python/io/`.
