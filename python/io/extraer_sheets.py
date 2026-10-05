@@ -66,7 +66,8 @@ def extraer_sheets(root: Path, variables: dict[str, str]) -> None:
                 stg = src["stg_table"]
                 worksheet = str(src["worksheet"])
                 header_row = int(src.get("header_row", 1))
-                sheet = gc.open_by_key(src["spreadsheet_key"]).worksheet(worksheet)
+                book = con_backoff(gc.open_by_key, src["spreadsheet_key"])
+                sheet = con_backoff(book.worksheet, worksheet)
                 valores = con_backoff(sheet.get_all_values)
                 if not valores or len(valores) < header_row:
                     raise ValueError(f"Sheets '{worksheet}': sin fila de headers {header_row}")

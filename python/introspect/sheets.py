@@ -96,8 +96,8 @@ def introspect(source: dict, variables: dict[str, str], root: Path | None = None
         raise ValueError(f"{source.get('stg_table')}: header_row debe ser >= 1")
 
     gc = gspread.service_account(filename=str(secret))
-    book = gc.open_by_key(key)
-    sheet = book.worksheet(str(worksheet))
+    book = con_backoff(gc.open_by_key, key)
+    sheet = con_backoff(book.worksheet, str(worksheet))
     headers = con_backoff(sheet.row_values, header_row)
     if not headers:
         raise ValueError(f"Sheets '{worksheet}': fila {header_row} vacía")

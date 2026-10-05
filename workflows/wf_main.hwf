@@ -44,11 +44,12 @@
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>cd /d "${PROJECT_HOME}"
-call h2\scripts\reset_and_create.bat
+      <script>set -e
+cd "${PROJECT_HOME}"
+./h2/scripts/reset_and_create.sh
 </script>
       <name>Reset H2 clean</name>
-      <description>stop + start H2 mem + DDL (Windows)</description>
+      <description>stop + start H2 mem + DDL (Linux)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>208</xloc>
@@ -70,11 +71,14 @@ call h2\scripts\reset_and_create.bat
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>cd /d "${PROJECT_HOME}"
-".venv\Scripts\python.exe" python\create_stg.py
+      <script>set -e
+cd "${PROJECT_HOME}"
+PY=python3
+[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
+"$PY" python/create_stg.py
 </script>
       <name>Python create STG</name>
-      <description>inputs.yaml → CREATE TABLE STG_* (Windows)</description>
+      <description>inputs.yaml → CREATE TABLE STG_* (Linux)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>368</xloc>
@@ -96,11 +100,14 @@ call h2\scripts\reset_and_create.bat
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>cd /d "${PROJECT_HOME}"
-".venv\Scripts\python.exe" python\io\extraer_sheets.py
+      <script>set -e
+cd "${PROJECT_HOME}"
+PY=python3
+[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
+"$PY" python/io/extraer_sheets.py
 </script>
       <name>Python extract Sheets</name>
-      <description>Google Sheets → STG_DEAM_* en H2 (gspread + backoff 429)</description>
+      <description>Google Sheets → STG_DEAM_* en H2 (Linux)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>528</xloc>
@@ -122,11 +129,14 @@ call h2\scripts\reset_and_create.bat
       <exec_per_row>N</exec_per_row>
       <set_append_logfile>N</set_append_logfile>
       <insertScript>Y</insertScript>
-      <script>cd /d "${PROJECT_HOME}"
-".venv\Scripts\python.exe" python\main.py
+      <script>set -e
+cd "${PROJECT_HOME}"
+PY=python3
+[ -x .venv/bin/python ] &amp;&amp; PY=.venv/bin/python
+"$PY" python/main.py
 </script>
       <name>Run Python</name>
-      <description>python/main.py → logica/deam.py → Oracle DW_DEAM_*</description>
+      <description>python/main.py → logica/deam.py → Oracle DW_DEAM_* (Linux)</description>
       <type>SHELL</type>
       <attributes/>
       <xloc>688</xloc>

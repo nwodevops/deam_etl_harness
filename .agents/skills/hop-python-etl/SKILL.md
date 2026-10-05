@@ -72,6 +72,10 @@ Fuente única: `project-config.json` → `config.variables`. Entorno: `./switch-
 
 **Secretos:** no commitear passwords reales en `project-config.json` / `environments/`.
 
+**Dos SO:** la corrida Linux (`init.sh`, `wf_main.hwf`) y la Windows (`init.bat`, `wf_main_windows.hwf`, `run_wf_main.bat`) van juntas. El `.bat` del Programador de tareas se copia de la plantilla en [`linux-windows-parity`](../linux-windows-parity/SKILL.md).
+
+**Logs:** la corrida se guarda en `logs/`. Skill [`etl-run-logs`](../etl-run-logs/SKILL.md).
+
 ## Gotchas
 
 | Síntoma | Causa |

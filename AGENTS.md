@@ -2,7 +2,7 @@
 
 ETL **Apache Hop + H2 in-memory + Python**. Arquitectura: [`docs/arquitectura.md`](docs/arquitectura.md).
 
-**Verificación:** [`./init.sh`](init.sh) debe terminar en **`HARNESS OK`**. Criterios: [`CHECKPOINTS.md`](CHECKPOINTS.md).
+**Verificación:** `./init.sh` (Linux) o `init.bat remote` (Windows) debe terminar en **`HARNESS OK`**. Criterios: [`CHECKPOINTS.md`](CHECKPOINTS.md).
 
 ## Harness
 
@@ -14,11 +14,15 @@ ETL **Apache Hop + H2 in-memory + Python**. Arquitectura: [`docs/arquitectura.md
 | [`docs/harness/workflow.md`](docs/harness/workflow.md) | Roles líder / implementador / revisor |
 | [`docs/harness/platform.md`](docs/harness/platform.md) | Hop, H2, variables |
 
-## Skill
+## Skills
 
-- [`.agents/skills/hop-python-etl/SKILL.md`](.agents/skills/hop-python-etl/SKILL.md)
+- [`.agents/skills/hop-python-etl/SKILL.md`](.agents/skills/hop-python-etl/SKILL.md) — capas Hop / H2 / Python
+- [`.agents/skills/linux-windows-parity/SKILL.md`](.agents/skills/linux-windows-parity/SKILL.md) — el cambio de Linux se espeja en `init.bat`, `wf_main_windows.hwf` y `run_wf_main.bat`
+- [`.agents/skills/etl-run-logs/SKILL.md`](.agents/skills/etl-run-logs/SKILL.md) — cada corrida deja bitácora en `logs/`
 
 ## Inicio rápido
+
+### Linux (desarrollo, entorno `local`)
 
 ```bash
 ./switch-env.sh local
@@ -26,23 +30,28 @@ ETL **Apache Hop + H2 in-memory + Python**. Arquitectura: [`docs/arquitectura.md
 ~/apps/hop/hop-gui.sh   # → wf_main.hwf
 ```
 
-**Windows:** `switch-env.ps1` hace lo mismo que `switch-env.sh` (`.\switch-env.ps1 local`). `init.bat` es el equivalente de `init.sh` (usa `h2\scripts\*.bat` y `.venv\Scripts\python.exe`). Los `.sh` (`init.sh`, `h2/scripts/`) requieren Git Bash/WSL y asumen venv Linux (`.venv/bin/python`; en Windows el venv es `.venv\Scripts\`). Si la política de ejecución bloquea los `.ps1` (GPO, script sin firma), usa los `.bat` y genera `project-config.json` a mano (copiar variables de `environments/<env>.json`; estructura en `switch-env.sh`). Google Sheets vía service account tiene cuota (~60 lecturas/min): `introspect/sheets.py:con_backoff` reintenta ante 429 — reutilízala en llamadas nuevas a la API.
+### Windows (este equipo, entorno `remote`)
 
-Smoke sin Hop (equivalente a `init.sh`, sin chequeos del harness):
-
-```bash
-./h2/scripts/reset_and_create.sh && .venv/bin/python python/create_stg.py && .venv/bin/python python/main.py
+```bat
+powershell -ExecutionPolicy Bypass -File switch-env.ps1 remote
+init.bat remote
+REM Programador de tareas → run_wf_main.bat
+REM Hop GUI → workflows\wf_main_windows.hwf
 ```
+
+## Entornos
+
+Host, servicio y esquema no van en este archivo. Viven en `environments/local.json` y `environments/remote.json` (placeholders `<...>`). El esquema destino es `DB_ORA_DW_SCHEMA`. Credenciales reales solo en `docs/credenciales/*.txt` (gitignored), sobrepuestas por `switch-env.sh` / `switch-env.ps1`.
 
 ## Reglas críticas
 
-1. **Un solo `.py`** en `logica/` (reemplazar `demo.py` al escribir la lógica real). `python/main.py` lo auto-descubre; entrada = DataFrames de `LECTURAS` en `python/io/leer_h2.py`; salida = DataFrame `RESULTADO` (→ Excel) y/o dict `SALIDAS_ORACLE` {tabla → DataFrame} (→ Oracle `oracle_dw`, truncate + reload) (contrato: [`python/CONTRATO.md`](python/CONTRATO.md)).
-2. **Sin secretos** en git (`project-config.json` y `client_secret.json` son generados/gitignored; `environments/` solo placeholders `<...>`).
+1. **Un solo `.py`** en `logica/` (el cascarón trae `demo.py`).
+2. **Sin secretos** en git (`project-config.json` es generado).
 3. **Sin `${VAR}` literal** en logs Hop = variable mal definida.
 4. `logica/` no abre conexiones. I/O en `python/io/`.
+5. **No solapar corridas**: `mem:csep`:9092 es compartido con los repos hermanos y todos hacen `DROP ALL OBJECTS`.
+6. **Corrida en `logs/`**: `logs/init_YYYYMMDD.log` y `logs/wf_main_YYYYMMDD.log`. stdout o un temporal que se borra no cuentan. Skill `etl-run-logs`.
 
 ## Nuevo proyecto
 
 Este repo es un cascarón. Fuentes → `inputs.yaml`. Lecturas → `python/io/leer_h2.py`. Transformación → `logica/<tu>.py`. Destino demo → Excel.
-
-Nueva fuente: crear `pipelines/pl_stage_*.hpl` y cablearla en `wf_main.hwf` **después** del paso Python create STG (ejemplo en `.agents/skills/hop-python-etl/inputs.example.yaml`).
