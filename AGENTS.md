@@ -19,6 +19,7 @@ ETL **Apache Hop + H2 in-memory + Python**. Arquitectura: [`docs/arquitectura.md
 - [`.agents/skills/hop-python-etl/SKILL.md`](.agents/skills/hop-python-etl/SKILL.md) — capas Hop / H2 / Python
 - [`.agents/skills/linux-windows-parity/SKILL.md`](.agents/skills/linux-windows-parity/SKILL.md) — el cambio de Linux se espeja en `init.bat`, `wf_main_windows.hwf` y `run_wf_main.bat`
 - [`.agents/skills/etl-run-logs/SKILL.md`](.agents/skills/etl-run-logs/SKILL.md) — cada corrida deja bitácora en `logs/`
+- [`.agents/skills/release-etl/SKILL.md`](.agents/skills/release-etl/SKILL.md) — corta la rama `release` solo con el ETL
 
 ## Inicio rápido
 
@@ -45,13 +46,14 @@ Host, servicio y esquema no van en este archivo. Viven en `environments/local.js
 
 ## Reglas críticas
 
-1. **Un solo `.py`** en `logica/` (el cascarón trae `demo.py`).
-2. **Sin secretos** en git (`project-config.json` es generado).
-3. **Sin `${VAR}` literal** en logs Hop = variable mal definida.
-4. `logica/` no abre conexiones. I/O en `python/io/`.
-5. **No solapar corridas**: `mem:csep`:9092 es compartido con los repos hermanos y todos hacen `DROP ALL OBJECTS`.
-6. **Corrida en `logs/`**: `logs/init_YYYYMMDD.log` y `logs/wf_main_YYYYMMDD.log`. stdout o un temporal que se borra no cuentan. Skill `etl-run-logs`.
+1. **Prioridad:** Apache Hop mueve las filas. Un mapeo 1:1 no pasa por `logica/`. Un tema complejo (joins, calidad, varias fuentes, dimensional, indicadores) sí usa Python en `logica/`.
+2. **Un solo `.py`** en `logica/` (el cascarón trae `demo.py`).
+3. **Sin secretos** en git (`project-config.json` es generado).
+4. **Sin `${VAR}` literal** en logs Hop = variable mal definida.
+5. `logica/` no abre conexiones. I/O en `python/io/`.
+6. **No solapar corridas**: `mem:csep`:9092 es compartido con los repos hermanos y todos hacen `DROP ALL OBJECTS`.
+7. **Corrida en `logs/`**: `logs/init_YYYYMMDD.log` y `logs/wf_main_YYYYMMDD.log`. stdout o un temporal que se borra no cuentan. Skill `etl-run-logs`.
 
 ## Nuevo proyecto
 
-Este repo es un cascarón. Fuentes → `inputs.yaml`. Lecturas → `python/io/leer_h2.py`. Transformación → `logica/<tu>.py`. Destino demo → Excel.
+Este repo es un cascarón. Fuentes → `inputs.yaml`. Filas → pipelines Hop. `logica/<tu>.py` es obligatorio cuando el tema es complejo. Destino demo del cascarón → Excel.
